@@ -1,0 +1,39 @@
+[package]
+name = "cargo-verset"
+description = "A cargo plugin to change the version of a package in the Cargo.toml file"
+repository = "https://github.com/bircni/cargo-verset"
+version = "0.1.0"
+authors = ["bircni"]
+edition = "2021"
+license = "MIT"
+readme = "README.md"
+categories = ["development-tools::cargo-plugins"]
+keywords = ["cargo", "verset", "version", "set-version", "cli"]
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4.5", features = ["derive"] }
+log = "0.4"
+semver = { version = "1", features = ["serde"] }
+simplelog = "0.12"
+toml_edit = "0.22.22"
+
+[dev-dependencies]
+toml = "0.8"
+insta = { version = "1.41", features = ["json"] }
+
+[lints.rust]
+unsafe_code = "deny"
+deprecated = "warn"
+
+[lints.clippy]
+all = "warn"
+correctness = "warn"
+suspicious = "warn"
+style = "warn"
+complexity = "warn"
+perf = "warn"
+pedantic = "warn"
+nursery = "warn"
+unwrap_used = "warn"
+expect_used = "warn"
