@@ -8,7 +8,17 @@ mod cli;
 #[cfg(test)]
 mod test;
 
-fn main() -> anyhow::Result<()> {
+fn main() {
+    match real_main() {
+        Ok(()) => {}
+        Err(e) => {
+            log::error!("{:#}", e);
+            std::process::exit(1);
+        }
+    }
+}
+
+fn real_main() -> anyhow::Result<()> {
     simplelog::TermLogger::init(
         #[cfg(debug_assertions)]
         LevelFilter::max(),
@@ -23,7 +33,7 @@ fn main() -> anyhow::Result<()> {
     )
     .context("Failed to initialize logger")?;
 
-    Cli::parse().run()?;
+    Cli::parse_from(std::env::args().filter(|a| a != "verset")).run()?;
 
     Ok(())
 }
