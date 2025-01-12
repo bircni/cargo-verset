@@ -6,6 +6,18 @@
 
 `cargo-verset` is a tool to change the version in your Cargo.toml file.
 
+## Installation
+
+```sh
+cargo install cargo-verset
+```
+
+or with `cargo binstall`:
+
+```sh
+cargo binstall cargo-verset
+```
+
 ## Usage
 
 ```sh

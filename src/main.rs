@@ -1,5 +1,11 @@
-use anyhow::Context;
-use clap::Parser;
+#![allow(
+    clippy::blanket_clippy_restriction_lints,
+    reason = "I want it thaaat way"
+)]
+use std::{env, process};
+
+use anyhow::Context as _;
+use clap::Parser as _;
 use cli::Cli;
 use log::LevelFilter;
 use simplelog::{ColorChoice, ConfigBuilder, TerminalMode};
@@ -13,7 +19,7 @@ fn main() {
         Ok(()) => {}
         Err(e) => {
             log::error!("{:#}", e);
-            std::process::exit(1);
+            process::exit(1);
         }
     }
 }
@@ -33,7 +39,7 @@ fn real_main() -> anyhow::Result<()> {
     )
     .context("Failed to initialize logger")?;
 
-    Cli::parse_from(std::env::args().filter(|a| a != "verset")).run()?;
+    Cli::parse_from(env::args().filter(|a| a != "verset")).run()?;
 
     Ok(())
 }

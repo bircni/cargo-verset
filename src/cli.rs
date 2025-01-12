@@ -19,6 +19,10 @@ pub struct Cli {
 }
 
 impl Cli {
+    #[expect(
+        clippy::option_if_let_else,
+        reason = "Cannot borrow `doc` mutably twice"
+    )]
     pub fn run(&self) -> anyhow::Result<()> {
         let toml_file = if let Some(path) = self.path.clone() {
             path
@@ -28,10 +32,10 @@ impl Cli {
         .join("Cargo.toml");
         log::debug!("{}", toml_file.display());
 
-        if std::fs::exists(&toml_file)? {
+        if fs::exists(&toml_file)? {
             let content = fs::read_to_string(&toml_file)?;
             let mut doc = content.parse::<DocumentMut>()?;
-            #[allow(clippy::option_if_let_else)]
+
             let entrypoint = if let Some(entry) = doc.get_mut("workspace") {
                 entry
             } else {

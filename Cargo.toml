@@ -2,7 +2,7 @@
 name = "cargo-verset"
 description = "A cargo plugin to change the version of a package in the Cargo.toml file"
 repository = "https://github.com/bircni/cargo-verset"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["bircni"]
 edition = "2021"
 license = "MIT"
@@ -24,20 +24,36 @@ toml_edit = "0.22.22"
 
 [dev-dependencies]
 toml = "0.8"
-insta = { version = "1.41", features = ["json"] }
+insta = { version = "1.42", features = ["json"] }
 
 [lints.rust]
-unsafe_code = "deny"
+unsafe_code = "forbid"
 deprecated = "warn"
 
 [lints.clippy]
-all = "warn"
-correctness = "warn"
-suspicious = "warn"
-style = "warn"
-complexity = "warn"
-perf = "warn"
-pedantic = "warn"
-nursery = "warn"
-unwrap_used = "warn"
-expect_used = "warn"
+cargo = { level = "warn", priority = -1 }
+complexity = { level = "warn", priority = -1 }
+correctness = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+perf = { level = "warn", priority = -1 }
+restriction = { level = "warn", priority = -1 }
+style = { level = "warn", priority = -1 }
+suspicious = { level = "warn", priority = -1 }
+# Restriction allowed lints
+pattern_type_mismatch = "allow"
+question_mark_used = "allow"
+implicit_return = "allow"
+mod_module_files = "allow"
+missing_docs_in_private_items = "allow"
+std_instead_of_alloc = "allow"
+default_numeric_fallback = "allow"
+separated_literal_suffix = "allow"
+as_conversions = "allow"
+float_arithmetic = "allow"
+min_ident_chars = "allow"
+exit = "allow"
+single_call_fn = "allow"
+arbitrary_source_item_ordering = "allow"
+arithmetic_side_effects = "allow"
+else_if_without_else = "allow"
