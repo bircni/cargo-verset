@@ -25,6 +25,14 @@ fn main() {
 }
 
 fn real_main() -> anyhow::Result<()> {
+    initialize_logger()?;
+
+    Cli::parse_from(env::args().filter(|a| a != "verset")).run()?;
+
+    Ok(())
+}
+
+fn initialize_logger() -> anyhow::Result<()> {
     simplelog::TermLogger::init(
         #[cfg(debug_assertions)]
         LevelFilter::max(),
@@ -37,9 +45,5 @@ fn real_main() -> anyhow::Result<()> {
         TerminalMode::Mixed,
         ColorChoice::Auto,
     )
-    .context("Failed to initialize logger")?;
-
-    Cli::parse_from(env::args().filter(|a| a != "verset")).run()?;
-
-    Ok(())
+    .context("Failed to initialize logger")
 }

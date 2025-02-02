@@ -21,13 +21,12 @@ cargo binstall cargo-verset
 ## Usage
 
 ```sh
-Usage: cargo-verset [OPTIONS] --semver <SEMVER>
+Usage: cargo-verset.exe [OPTIONS] --ver <VER>
 
 Options:
-  -s, --semver <SEMVER>  Version
-  -p, --path <PATH>      Path to look for the Cargo.toml
-  -d, --dry-run          Dry run
-  -h, --help             Print help
-  -V, --version          Print version
-
+  -v, --ver <VER>    Version to set in the workspace
+  -p, --path <PATH>  Path to the directory containing the Cargo.toml file
+  -d, --dry-run      Run the program without making any changes
+  -h, --help         Print help
+  -V, --version      Print version
 ```

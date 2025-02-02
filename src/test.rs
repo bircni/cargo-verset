@@ -15,6 +15,11 @@ use toml::{from_str, Value};
 use super::Cli;
 
 #[test]
+fn test_initialize_logger() {
+    super::initialize_logger().unwrap();
+}
+
+#[test]
 fn test_full() {
     let test_dir = "../testdir".to_owned();
     if Path::new(&test_dir).exists() {
