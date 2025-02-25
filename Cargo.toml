@@ -2,7 +2,7 @@
 name = "cargo-verset"
 description = "A cargo plugin to change the version of a package in the Cargo.toml file"
 repository = "https://github.com/bircni/cargo-verset"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["bircni"]
 edition = "2024"
 license = "MIT"
