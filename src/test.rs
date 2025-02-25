@@ -10,7 +10,7 @@ use anyhow::Context as _;
 use clap::{ColorChoice, Command, CommandFactory as _};
 use insta::_macro_support;
 use semver::Version;
-use toml::{from_str, Value};
+use toml::{Value, from_str};
 
 use super::Cli;
 

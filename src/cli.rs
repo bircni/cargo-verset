@@ -36,10 +36,9 @@ impl Cli {
             let content = fs::read_to_string(&toml_file)?;
             let mut doc = content.parse::<DocumentMut>()?;
 
-            let entrypoint = if let Some(entry) = doc.get_mut("workspace") {
-                entry
-            } else {
-                doc.as_item_mut()
+            let entrypoint = match doc.get_mut("workspace") {
+                Some(entry) => entry,
+                _ => doc.as_item_mut(),
             };
             if let Some(package) = entrypoint.get_mut("package") {
                 if let Some(version) = package.get_mut("version") {
