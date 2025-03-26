@@ -24,7 +24,6 @@ toml_edit = "0.22"
 
 [dev-dependencies]
 toml = "0.8"
-insta = { version = "1.42", features = ["json"] }
 
 [lints.rust]
 unsafe_code = "deny"

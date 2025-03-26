@@ -47,9 +47,13 @@ impl Cli {
                         log::info!("Dry run: Did not set version to {}!", self.ver);
                     } else {
                         fs::write(&toml_file, doc.to_string())?;
-                        log::info!("Successfully set workspace version");
+                        log::info!("Successfully set version to {}", self.ver);
                     }
+                } else {
+                    log::warn!("Version key not found in Cargo.toml");
                 }
+            } else {
+                log::warn!("Package section not found in Cargo.toml");
             }
         } else {
             anyhow::bail!("Could not find a Cargo.toml file");

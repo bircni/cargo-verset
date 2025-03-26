@@ -1,7 +1,3 @@
-#![allow(
-    clippy::blanket_clippy_restriction_lints,
-    reason = "I want it thaaat way"
-)]
 use std::{env, process};
 
 use anyhow::Context as _;
@@ -18,7 +14,7 @@ fn main() {
     match real_main() {
         Ok(()) => {}
         Err(e) => {
-            log::error!("{:#}", e);
+            log::error!("{e:#}");
             process::exit(1);
         }
     }
