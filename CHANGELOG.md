@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
+## [0.1.6](https://github.com/bircni/cargo-verset/compare/0.1.5..0.1.6) - 2025-05-10
+
+### Miscellaneous Chores
+
+- cleanup some things - ([9ddfd94](https://github.com/bircni/cargo-verset/commit/9ddfd9451928ad6852d37fcd7a19981aeb08f4d7)) - Nicolas
+
 ## [0.1.5](https://github.com/bircni/cargo-verset/compare/0.1.4..0.1.5) - 2025-04-19
 
 ### Documentation
