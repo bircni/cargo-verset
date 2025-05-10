@@ -4,7 +4,7 @@ use anyhow::Context as _;
 use clap::Parser as _;
 use cli::Cli;
 use log::LevelFilter;
-use simplelog::{ColorChoice, ConfigBuilder, TerminalMode};
+use simplelog::{ColorChoice, ConfigBuilder, TermLogger, TerminalMode};
 
 mod cli;
 #[cfg(test)]
@@ -29,13 +29,15 @@ fn real_main() -> anyhow::Result<()> {
 }
 
 fn initialize_logger() -> anyhow::Result<()> {
-    simplelog::TermLogger::init(
-        #[cfg(debug_assertions)]
-        LevelFilter::max(),
-        #[cfg(not(debug_assertions))]
-        LevelFilter::Info,
+    let level_filter = if cfg!(any(debug_assertions, test)) {
+        LevelFilter::max()
+    } else {
+        LevelFilter::Info
+    };
+
+    TermLogger::init(
+        level_filter,
         ConfigBuilder::new()
-            // suppress all logs from dependencies
             .add_filter_allow_str("cargo_verset")
             .build(),
         TerminalMode::Mixed,

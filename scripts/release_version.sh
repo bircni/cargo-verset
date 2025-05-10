@@ -46,7 +46,7 @@ if [ "$answer" != "y" ]; then
 fi
 
 # Commit changes
-git add Cargo.toml CHANGELOG.md
+git add Cargo.toml CHANGELOG.md Cargo.lock
 git commit -m "release($version)"
 git tag -a "$version" -m "Release $version"
 
