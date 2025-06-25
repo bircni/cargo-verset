@@ -1,0 +1,19 @@
+---
+source: src/test.rs
+expression: help_text
+---
+A cargo plugin to change the version of a package in the Cargo.toml file
+
+Usage: cargo_verset <COMMAND>
+
+Commands:
+  package     Set the version of the package in a Cargo.toml file
+  dependency  Set the version of a dependency in a Cargo.toml file
+  help        Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help
+          Print help
+
+  -V, --version
+          Print version

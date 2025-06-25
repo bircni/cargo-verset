@@ -7,6 +7,8 @@ use log::LevelFilter;
 use simplelog::{ColorChoice, ConfigBuilder, TermLogger, TerminalMode};
 
 mod cli;
+#[cfg(test)]
+mod test;
 
 fn main() {
     match real_main() {

@@ -21,12 +21,16 @@ cargo binstall cargo-verset
 ## Usage
 
 ```sh
-Usage: cargo-verset.exe [OPTIONS] --ver <VER>
+A cargo plugin to change the version of a package in the Cargo.toml file
+
+Usage: cargo-verset <COMMAND>
+
+Commands:
+  package     Set the version of the package in a Cargo.toml file
+  dependency  Set the version of a dependency in a Cargo.toml file
+  help        Print this message or the help of the given subcommand(s)
 
 Options:
-  -v, --ver <VER>    Version to set in the workspace
-  -p, --path <PATH>  Path to the directory containing the Cargo.toml file
-  -d, --dry-run      Run the program without making any changes
-  -h, --help         Print help
-  -V, --version      Print version
+  -h, --help     Print help
+  -V, --version  Print version
 ```

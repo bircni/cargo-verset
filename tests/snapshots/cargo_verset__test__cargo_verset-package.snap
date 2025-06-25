@@ -1,0 +1,23 @@
+---
+source: src/test.rs
+expression: help_text
+---
+Set the version of the package in a Cargo.toml file
+
+Usage: package [OPTIONS] --ver <VER>
+
+Options:
+  -v, --ver <VER>
+          Version to set in the workspace
+
+  -p, --path <PATH>
+          Path to the directory containing the Cargo.toml file
+
+  -d, --dry-run
+          Run the program without making any changes
+
+  -h, --help
+          Print help
+
+  -V, --version
+          Print version
