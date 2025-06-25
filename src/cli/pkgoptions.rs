@@ -6,7 +6,7 @@ use toml_edit::DocumentMut;
 
 #[derive(Parser)]
 #[command(author, version, about)]
-pub struct Cli {
+pub struct PackageOptions {
     /// Version to set in the workspace
     #[clap(long, short)]
     pub ver: Version,
@@ -18,7 +18,7 @@ pub struct Cli {
     pub dry_run: bool,
 }
 
-impl Cli {
+impl PackageOptions {
     #[expect(
         clippy::option_if_let_else,
         reason = "Cannot borrow `doc` mutably twice"
@@ -32,7 +32,7 @@ impl Cli {
         .join("Cargo.toml");
         log::debug!("{}", toml_file.display());
 
-        if fs::exists(&toml_file)? {
+        if fs::metadata(&toml_file).is_ok() {
             let content = fs::read_to_string(&toml_file)?;
             let mut doc = content.parse::<DocumentMut>()?;
 
@@ -41,13 +41,15 @@ impl Cli {
                 _ => doc.as_item_mut(),
             };
             if let Some(package) = entrypoint.get_mut("package") {
-                if let Some(version) = package.get_mut("version") {
-                    *version = toml_edit::value(self.ver.to_string());
-                    if self.dry_run {
-                        log::info!("Dry run: Did not set version to {}!", self.ver);
-                    } else {
-                        fs::write(&toml_file, doc.to_string())?;
-                        log::info!("Successfully set version to {}", self.ver);
+                if package.get("version").is_some() {
+                    if let Some(version) = package.get_mut("version") {
+                        *version = toml_edit::value(self.ver.to_string());
+                        if self.dry_run {
+                            log::info!("Dry run: Did not set version to {}!", self.ver);
+                        } else {
+                            fs::write(&toml_file, doc.to_string())?;
+                            log::info!("Successfully set version to {}", self.ver);
+                        }
                     }
                 } else {
                     log::warn!("Version key not found in Cargo.toml");
