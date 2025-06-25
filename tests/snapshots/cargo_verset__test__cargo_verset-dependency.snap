@@ -1,0 +1,26 @@
+---
+source: src/test.rs
+expression: help_text
+---
+Set the version of a dependency in a Cargo.toml file
+
+Usage: dependency [OPTIONS] --ver <VER> --name <PACKAGE_NAME>
+
+Options:
+  -v, --ver <VER>
+          Version to set for the package
+
+  -n, --name <PACKAGE_NAME>
+          Name of the package to set the version for
+
+  -p, --path <PATH>
+          Path to the directory containing the Cargo.toml file
+
+  -d, --dry-run
+          Run the program without making any changes
+
+  -h, --help
+          Print help
+
+  -V, --version
+          Print version
