@@ -35,8 +35,19 @@ impl DependencyOptions {
                     if let Some(val) = toml_edit::value(version.to_string()).as_value() {
                         inline.insert(k, val.clone());
                     }
+                } else if k == "path" && !table.contains_key("version") {
+                    // If there is no version key but there is a path key, remove path and set version
+                    // path is skipped
                 } else if let Some(val) = v.as_value() {
                     inline.insert(k, val.clone());
+                }
+            }
+            // TODO: add option to set another key, e.g. "git" or "registry"
+            // If no version key exists but a path key was removed, set version explicitly
+            if !table.contains_key("version") && table.contains_key("path") {
+                log::warn!("A path key was found but no version key, setting version explicitly");
+                if let Some(val) = toml_edit::value(version.to_string()).as_value() {
+                    inline.insert("version", val.clone());
                 }
             }
             let mut new_item = toml_edit::Item::Value(toml_edit::Value::InlineTable(inline));
