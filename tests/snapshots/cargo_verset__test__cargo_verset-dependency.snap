@@ -19,6 +19,9 @@ Options:
   -d, --dry-run
           Run the program without making any changes
 
+  -r, --registry <REGISTRY>
+          Set a custom registry for the dependency
+
   -h, --help
           Print help
 

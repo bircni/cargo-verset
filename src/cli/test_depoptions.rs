@@ -43,6 +43,7 @@ get-size2 = "0.1.2" # get-size2 comment
         package_name: String::from("serde"),
         path: Some(dir.path().to_path_buf()),
         dry_run: false,
+        registry: None,
     };
     opts.run().unwrap();
     let toml = read_toml(&toml_path);
@@ -54,6 +55,7 @@ get-size2 = "0.1.2" # get-size2 comment
         package_name: String::from("clap"),
         path: Some(dir.path().to_path_buf()),
         dry_run: false,
+        registry: None,
     };
     opts.run().unwrap();
     let toml = read_toml(&toml_path);
@@ -65,6 +67,7 @@ get-size2 = "0.1.2" # get-size2 comment
         package_name: String::from("get-size2"),
         path: Some(dir.path().to_path_buf()),
         dry_run: false,
+        registry: None,
     };
     opts.run().unwrap();
     let toml = read_toml(&toml_path);
