@@ -19,11 +19,14 @@ pub struct DependencyOptions {
     /// Run the program without making any changes
     #[clap(long, short)]
     pub dry_run: bool,
+    /// Set a custom registry for the dependency
+    #[clap(long, short)]
+    pub registry: Option<String>,
 }
 
 impl DependencyOptions {
     /// Helper to update a dependency item (String or Table) and preserve comment
-    fn update_dep_item(item: &mut toml_edit::Item, version: &Version) {
+    fn update_dep_item(item: &mut toml_edit::Item, version: &Version, registry: Option<&str>) {
         let comment = item
             .as_value()
             .and_then(|v| v.decor().suffix().map(|s| s.as_str()))
@@ -42,7 +45,6 @@ impl DependencyOptions {
                     inline.insert(k, val.clone());
                 }
             }
-            // TODO: add option to set another key, e.g. "git" or "registry"
             // If no version key exists but a path key was removed, set version explicitly
             if !table.contains_key("version") && table.contains_key("path") {
                 log::warn!("A path key was found but no version key, setting version explicitly");
@@ -50,21 +52,49 @@ impl DependencyOptions {
                     inline.insert("version", val.clone());
                 }
             }
+            // Set the registry if desired
+            if let Some(reg) = registry
+                && let Some(val) = toml_edit::value(reg).as_value()
+            {
+                inline.insert("registry", val.clone());
+            }
             let mut new_item = toml_edit::Item::Value(toml_edit::Value::InlineTable(inline));
             if let (Some(c), Some(v)) = (comment, new_item.as_value_mut()) {
                 v.decor_mut().set_suffix(c);
             }
             *item = new_item;
         } else if item.is_str() {
-            let mut new_item = toml_edit::value(version.to_string());
-            if let (Some(c), Some(v)) = (comment, new_item.as_value_mut()) {
-                v.decor_mut().set_suffix(c);
+            if let Some(reg) = registry {
+                // If registry is set, create InlineTable with version and registry
+                let mut inline = toml_edit::InlineTable::new();
+                if let Some(val) = toml_edit::value(version.to_string()).as_value() {
+                    inline.insert("version", val.clone());
+                }
+                if let Some(val) = toml_edit::value(reg).as_value() {
+                    inline.insert("registry", val.clone());
+                }
+                let mut new_item = toml_edit::Item::Value(toml_edit::Value::InlineTable(inline));
+                if let (Some(c), Some(v)) = (comment, new_item.as_value_mut()) {
+                    v.decor_mut().set_suffix(c);
+                }
+                *item = new_item;
+            } else {
+                let mut new_item = toml_edit::value(version.to_string());
+                if let (Some(c), Some(v)) = (comment, new_item.as_value_mut()) {
+                    v.decor_mut().set_suffix(c);
+                }
+                *item = new_item;
             }
-            *item = new_item;
         } else {
             let mut inline = toml_edit::InlineTable::new();
             if let Some(val) = toml_edit::value(version.to_string()).as_value() {
                 inline.insert("version", val.clone());
+            }
+            // Set the registry if desired
+            if let Some(reg) = registry
+                && let Some(val) = toml_edit::value(reg).as_value()
+            {
+                inline.insert("registry", val.clone());
             }
             let mut new_item = toml_edit::Item::Value(toml_edit::Value::InlineTable(inline));
             if let (Some(c), Some(v)) = (comment, new_item.as_value_mut()) {
@@ -91,31 +121,41 @@ impl DependencyOptions {
         if let Some(ws_deps) = doc
             .get_mut("workspace")
             .and_then(|ws| ws.get_mut("dependencies"))
+            && let Some(item) = ws_deps.get_mut(self.package_name.as_str())
         {
-            if let Some(item) = ws_deps.get_mut(self.package_name.as_str()) {
-                Self::update_dep_item(item, &self.ver);
-                if self.dry_run {
-                    log::info!(
-                        "Dry run: Did not set version for workspace dependency '{}'!",
-                        self.package_name
-                    );
-                } else {
-                    fs::write(&workspace_toml, doc.to_string())?;
-                    log::info!(
-                        "Successfully set version for workspace dependency '{}' to {}",
-                        self.package_name,
-                        self.ver
-                    );
-                }
-                return Ok(());
+            Self::update_dep_item(item, &self.ver, self.registry.as_deref());
+            if self.dry_run {
+                log::info!(
+                    "Dry run: Did not set version for workspace dependency '{}'!",
+                    self.package_name
+                );
+            } else {
+                fs::write(&workspace_toml, doc.to_string())?;
+                log::info!(
+                    "Successfully set version for workspace dependency '{}' to {}",
+                    self.package_name,
+                    self.ver
+                );
             }
+            return Ok(());
         }
         // 2. [dependencies]
         let deps = doc.entry("dependencies").or_insert(toml_edit::table());
         if let Some(item) = deps.get_mut(self.package_name.as_str()) {
-            Self::update_dep_item(item, &self.ver);
+            Self::update_dep_item(item, &self.ver, self.registry.as_deref());
         } else {
-            deps[self.package_name.as_str()] = toml_edit::value(self.ver.to_string());
+            // Create a new dependency entry if it doesn't exist
+            let mut inline = toml_edit::InlineTable::new();
+            if let Some(val) = toml_edit::value(self.ver.to_string()).as_value() {
+                inline.insert("version", val.clone());
+            }
+            if let Some(reg) = self.registry.as_deref()
+                && let Some(val) = toml_edit::value(reg).as_value()
+            {
+                inline.insert("registry", val.clone());
+            }
+            deps[self.package_name.as_str()] =
+                toml_edit::Item::Value(toml_edit::Value::InlineTable(inline));
         }
         if self.dry_run {
             log::info!(
