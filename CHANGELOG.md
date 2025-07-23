@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
+## [0.3.0](https://github.com/bircni/cargo-verset/compare/0.2.0..0.3.0) - 2025-07-23
+
+### Features
+
+- enhance dependency version handling by setting version explicitly when path is present - ([534f138](https://github.com/bircni/cargo-verset/commit/534f138298560e7f1c50304dffcd2559b79dcf91)) - Nicolas Bircks
+- add an option to set a registry - ([36ced63](https://github.com/bircni/cargo-verset/commit/36ced63f52d232293c271e1bd322f4508e8cd60f)) - Nicolas Bircks
+
+### Build
+
+- remove old script - ([dca471b](https://github.com/bircni/cargo-verset/commit/dca471b0e9d8ad9960b29fb469f0ce75e6387af3)) - Nicolas
+- update toolchain to stable and bump cargo-shear version to 1.4.0 - ([f353933](https://github.com/bircni/cargo-verset/commit/f3539335a5822410b900d52f1e4c23e7dab40454)) - Nicolas
+
 ## [0.2.0](https://github.com/bircni/cargo-verset/compare/0.1.6..0.2.0) - 2025-06-25
 
 ### Features
