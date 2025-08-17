@@ -22,7 +22,7 @@ version = "0.1.0"
     fs::write(&toml_path, content).unwrap();
 
     let opts = PackageOptions {
-        ver: Version::new(1, 2, 3),
+        version: Version::new(1, 2, 3),
         path: Some(dir.path().to_path_buf()),
         dry_run: false,
     };
@@ -42,7 +42,7 @@ members = ["foo"]
     fs::write(&toml_path, content).unwrap();
 
     let opts = PackageOptions {
-        ver: Version::new(1, 0, 0),
+        version: Version::new(1, 0, 0),
         path: Some(dir.path().to_path_buf()),
         dry_run: false,
     };
@@ -64,7 +64,7 @@ name = "myws"
     fs::write(&toml_path, content).unwrap();
 
     let opts = PackageOptions {
-        ver: Version::new(9, 9, 9),
+        version: Version::new(9, 9, 9),
         path: Some(dir.path().to_path_buf()),
         dry_run: false,
     };

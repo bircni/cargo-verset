@@ -39,7 +39,7 @@ get-size2 = "0.1.2" # get-size2 comment
 
     // String -> String
     let opts = DependencyOptions {
-        ver: Version::new(2, 0, 0),
+        version: Version::new(2, 0, 0),
         package_name: String::from("serde"),
         path: Some(dir.path().to_path_buf()),
         dry_run: false,
@@ -51,7 +51,7 @@ get-size2 = "0.1.2" # get-size2 comment
 
     // Inline object -> Inline object, preserve features
     let opts = DependencyOptions {
-        ver: Version::new(3, 0, 0),
+        version: Version::new(3, 0, 0),
         package_name: String::from("clap"),
         path: Some(dir.path().to_path_buf()),
         dry_run: false,
@@ -63,7 +63,7 @@ get-size2 = "0.1.2" # get-size2 comment
 
     // workspace.dependencies String -> String
     let opts = DependencyOptions {
-        ver: Version::new(0, 5, 0),
+        version: Version::new(0, 5, 0),
         package_name: String::from("get-size2"),
         path: Some(dir.path().to_path_buf()),
         dry_run: false,

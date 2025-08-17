@@ -5,11 +5,12 @@ use semver::Version;
 use toml_edit::DocumentMut;
 
 #[derive(Parser)]
-#[command(author, version, about)]
+#[command(author, about)]
+#[command(disable_version_flag = true)]
 pub struct PackageOptions {
     /// Version to set in the workspace
-    #[clap(long, short)]
-    pub ver: Version,
+    #[arg(required = true)]
+    pub version: Version,
     /// Path to the directory containing the Cargo.toml file
     #[clap(long, short)]
     pub path: Option<PathBuf>,
@@ -43,12 +44,12 @@ impl PackageOptions {
             if let Some(package) = entrypoint.get_mut("package") {
                 if package.get("version").is_some() {
                     if let Some(version) = package.get_mut("version") {
-                        *version = toml_edit::value(self.ver.to_string());
+                        *version = toml_edit::value(self.version.to_string());
                         if self.dry_run {
-                            log::info!("Dry run: Did not set version to {}!", self.ver);
+                            log::info!("Dry run: Did not set version to {}!", self.version);
                         } else {
                             fs::write(&toml_file, doc.to_string())?;
-                            log::info!("Successfully set version to {}", self.ver);
+                            log::info!("Successfully set version to {}", self.version);
                         }
                     }
                 } else {

@@ -4,12 +4,13 @@ expression: help_text
 ---
 Set the version of the package in a Cargo.toml file
 
-Usage: package [OPTIONS] --ver <VER>
+Usage: package [OPTIONS] <VERSION>
 
-Options:
-  -v, --ver <VER>
+Arguments:
+  <VERSION>
           Version to set in the workspace
 
+Options:
   -p, --path <PATH>
           Path to the directory containing the Cargo.toml file
 
@@ -18,6 +19,3 @@ Options:
 
   -h, --help
           Print help
-
-  -V, --version
-          Print version

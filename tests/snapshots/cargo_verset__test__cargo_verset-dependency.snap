@@ -4,15 +4,16 @@ expression: help_text
 ---
 Set the version of a dependency in a Cargo.toml file
 
-Usage: dependency [OPTIONS] --ver <VER> --name <PACKAGE_NAME>
+Usage: dependency [OPTIONS] <VERSION> <PACKAGE_NAME>
 
-Options:
-  -v, --ver <VER>
+Arguments:
+  <VERSION>
           Version to set for the package
 
-  -n, --name <PACKAGE_NAME>
+  <PACKAGE_NAME>
           Name of the package to set the version for
 
+Options:
   -p, --path <PATH>
           Path to the directory containing the Cargo.toml file
 
@@ -24,6 +25,3 @@ Options:
 
   -h, --help
           Print help
-
-  -V, --version
-          Print version

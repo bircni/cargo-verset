@@ -5,13 +5,14 @@ use semver::Version;
 use toml_edit::DocumentMut;
 
 #[derive(Parser)]
-#[command(author, version, about)]
+#[command(author, about)]
+#[command(disable_version_flag = true)]
 pub struct DependencyOptions {
     /// Version to set for the package
-    #[clap(long, short)]
-    pub ver: Version,
+    #[arg(required = true)]
+    pub version: Version,
     /// Name of the package to set the version for
-    #[clap(long = "name", short = 'n')]
+    #[arg(required = true)]
     pub package_name: String,
     /// Path to the directory containing the Cargo.toml file
     #[clap(long, short)]
@@ -123,7 +124,7 @@ impl DependencyOptions {
             .and_then(|ws| ws.get_mut("dependencies"))
             && let Some(item) = ws_deps.get_mut(self.package_name.as_str())
         {
-            Self::update_dep_item(item, &self.ver, self.registry.as_deref());
+            Self::update_dep_item(item, &self.version, self.registry.as_deref());
             if self.dry_run {
                 log::info!(
                     "Dry run: Did not set version for workspace dependency '{}'!",
@@ -134,7 +135,7 @@ impl DependencyOptions {
                 log::info!(
                     "Successfully set version for workspace dependency '{}' to {}",
                     self.package_name,
-                    self.ver
+                    self.version
                 );
             }
             return Ok(());
@@ -142,11 +143,11 @@ impl DependencyOptions {
         // 2. [dependencies]
         let deps = doc.entry("dependencies").or_insert(toml_edit::table());
         if let Some(item) = deps.get_mut(self.package_name.as_str()) {
-            Self::update_dep_item(item, &self.ver, self.registry.as_deref());
+            Self::update_dep_item(item, &self.version, self.registry.as_deref());
         } else {
             // Create a new dependency entry if it doesn't exist
             let mut inline = toml_edit::InlineTable::new();
-            if let Some(val) = toml_edit::value(self.ver.to_string()).as_value() {
+            if let Some(val) = toml_edit::value(self.version.to_string()).as_value() {
                 inline.insert("version", val.clone());
             }
             if let Some(reg) = self.registry.as_deref()
@@ -167,7 +168,7 @@ impl DependencyOptions {
             log::info!(
                 "Successfully set version for root dependency '{}' to {}",
                 self.package_name,
-                self.ver
+                self.version
             );
         }
         Ok(())
