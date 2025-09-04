@@ -1,0 +1,29 @@
+---
+source: src/test.rs
+expression: help_text
+---
+Create a release with changelog generation and version bumping
+
+Usage: release [OPTIONS]
+
+Options:
+  -p, --path <PATH>
+          Path to the directory containing the Cargo.toml file
+
+  -d, --dry-run
+          Run the program without making any changes
+
+  -y, --yes
+          Skip confirmation prompts and automatically proceed
+
+      --publish
+          Automatically publish the crate after creating the release
+
+  -r, --registry <REGISTRY>
+          Registry to publish to (if --publish is used)
+
+  -h, --help
+          Print help
+
+  -V, --version
+          Print version
