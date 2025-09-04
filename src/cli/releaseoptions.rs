@@ -47,11 +47,11 @@ impl ReleaseOptions {
 
         // Get current version from Cargo.toml
         let current_version = self.get_current_version(&cargo_toml)?;
-        log::info!("Current version: {}", current_version);
+        log::info!("Current version: {current_version}");
 
         // Get the last release tag
         let last_release_tag = self.get_last_release_tag(&repo)?;
-        log::info!("Last release tag: {:?}", last_release_tag);
+        log::info!("Last release tag: {last_release_tag:?}");
 
         // Generate changelog and compute next version
         let (changelog, next_version) = self.generate_changelog_and_version(
@@ -60,10 +60,12 @@ impl ReleaseOptions {
             &current_version
         )?;
 
-        log::info!("Next version: {}", next_version);
-        log::info!("Generated changelog:\n{}", changelog);
+        log::info!("Next version: {next_version}");
+        log::info!("Generated changelog:\n{changelog}");
 
-        if !self.dry_run {
+        if self.dry_run {
+            log::info!("Dry run: No changes were made");
+        } else {
             // Update version in Cargo.toml
             self.update_version(&cargo_toml, &next_version)?;
 
@@ -79,8 +81,6 @@ impl ReleaseOptions {
             if self.publish && self.should_publish()? {
                 self.publish_crate(&workspace_dir)?;
             }
-        } else {
-            log::info!("Dry run: No changes were made");
         }
 
         Ok(())
@@ -109,7 +109,7 @@ impl ReleaseOptions {
             // Try to parse as version (with or without 'v' prefix)
             let version_str = tag_name.strip_prefix('v').unwrap_or(tag_name);
             if Version::parse(version_str).is_ok() {
-                version_tags.push(tag_name.to_string());
+                version_tags.push(tag_name.to_owned());
             }
         }
 
@@ -136,11 +136,10 @@ impl ReleaseOptions {
         
         if let Some(tag) = last_release_tag {
             // Find the commit for this tag
-            if let Ok(tag_ref) = repo.find_reference(&format!("refs/tags/{}", tag)) {
-                if let Ok(tag_commit) = tag_ref.peel_to_commit() {
+            if let Ok(tag_ref) = repo.find_reference(&format!("refs/tags/{tag}"))
+                && let Ok(tag_commit) = tag_ref.peel_to_commit() {
                     revwalk.hide(tag_commit.id())?;
                 }
-            }
         }
 
         let mut commits = Vec::new();
@@ -191,7 +190,7 @@ impl ReleaseOptions {
 
         // Generate changelog
         let changelog = if commits.is_empty() {
-            "No changes since last release".to_string()
+            "No changes since last release".to_owned()
         } else {
             format!("Changes in this release:\n\n{}", commits.join("\n"))
         };
@@ -208,7 +207,7 @@ impl ReleaseOptions {
             if let Some(version_item) = package.get_mut("version") {
                 *version_item = toml_edit::value(version.to_string());
                 fs::write(cargo_toml, doc.to_string())?;
-                log::info!("Updated version to {} in Cargo.toml", version);
+                log::info!("Updated version to {version} in Cargo.toml");
             } else {
                 anyhow::bail!("Version key not found in package section");
             }
@@ -232,7 +231,7 @@ impl ReleaseOptions {
         let tree = repo.find_tree(tree_id)?;
         let parent_commit = repo.head()?.peel_to_commit()?;
 
-        let commit_message = format!("release: v{}\n\n{}", version, changelog);
+        let commit_message = format!("release: v{version}\n\n{changelog}");
         
         repo.commit(
             Some("HEAD"),
@@ -244,10 +243,10 @@ impl ReleaseOptions {
         )?;
 
         // Create tag
-        let tag_name = format!("v{}", version);
+        let tag_name = format!("v{version}");
         repo.tag_lightweight(&tag_name, repo.head()?.peel_to_commit()?.as_object(), false)?;
         
-        log::info!("Created release commit and tag: {}", tag_name);
+        log::info!("Created release commit and tag: {tag_name}");
         Ok(())
     }
 
@@ -268,7 +267,7 @@ impl ReleaseOptions {
         // This is a simplified version - in a real implementation you'd want
         // to handle authentication and push both commits and tags
         let output = Command::new("git")
-            .args(&["push", "origin", "HEAD"])
+            .args(["push", "origin", "HEAD"])
             .current_dir(repo.workdir().unwrap())
             .output()?;
 
@@ -277,7 +276,7 @@ impl ReleaseOptions {
         }
 
         let output = Command::new("git")
-            .args(&["push", "origin", "--tags"])
+            .args(["push", "origin", "--tags"])
             .current_dir(repo.workdir().unwrap())
             .output()?;
 
