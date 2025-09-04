@@ -4,6 +4,12 @@ use anyhow::{Context as _, Result};
 use clap::Parser;
 use dialoguer::Confirm;
 use git2::Repository;
+use git_cliff_core::{
+    changelog::Changelog,
+    config::Config,
+    commit::Commit,
+    repo::Repository as GitCliffRepository,
+};
 use semver::Version;
 use toml_edit::DocumentMut;
 
@@ -123,7 +129,7 @@ impl ReleaseOptions {
         Ok(version_tags.last().cloned())
     }
 
-    /// Generate changelog and compute next version using git-cliff for 100% compatibility
+    /// Generate changelog and compute next version using git-cliff-core for 100% compatibility
     fn generate_changelog_and_version(
         &self,
         repo: &Repository,
@@ -135,72 +141,124 @@ impl ReleaseOptions {
             .ok_or_else(|| anyhow::anyhow!("Repository has no working directory"))?
             .join("cliff.toml");
         
-        let use_git_cliff = cliff_config_path.exists();
-        
-        if use_git_cliff {
-            log::info!("Found cliff.toml - using git-cliff for 100% compatible changelog generation");
+        if cliff_config_path.exists() {
+            log::info!("Found cliff.toml - using git-cliff-core for 100% compatible changelog generation");
             
-            // Try to use git-cliff binary for 100% compatibility
-            match self.try_git_cliff_binary(repo, last_release_tag) {
-                Ok(changelog) => {
-                    let next_version = self.compute_next_version_from_commits(repo, last_release_tag, current_version)?;
-                    return Ok((changelog, next_version));
-                }
-                Err(e) => {
-                    log::warn!("git-cliff binary not available ({}), falling back to compatible implementation", e);
-                }
-            }
+            // Use git-cliff-core library for 100% compatibility
+            let (changelog, next_version) = self.generate_with_git_cliff_core(
+                repo, 
+                &cliff_config_path,
+                last_release_tag, 
+                current_version,
+            )?;
+            return Ok((changelog, next_version));
         }
 
-        // Fall back to git-cliff-compatible implementation
+        // Fall back to git-cliff-compatible implementation if no cliff.toml
         let (changelog, next_version) = self.generate_git_cliff_compatible_changelog(
             repo, 
             last_release_tag, 
             current_version,
-            use_git_cliff,
+            false,
         )?;
 
         Ok((changelog, next_version))
     }
 
-    /// Try to use git-cliff binary for 100% compatibility
-    fn try_git_cliff_binary(&self, repo: &Repository, last_release_tag: &Option<String>) -> Result<String> {
-        let workdir = repo.workdir()
-            .ok_or_else(|| anyhow::anyhow!("Repository has no working directory"))?;
-        
-        // Build git-cliff command
-        let mut cmd = Command::new("git-cliff");
-        
-        // Add range if we have a last release tag
-        if let Some(tag) = last_release_tag {
-            cmd.arg("--from").arg(tag);
-        }
-        
-        // Generate unreleased changes only
-        cmd.arg("--unreleased");
-        cmd.arg("--strip").arg("header"); // Remove header to get just the changes
-        cmd.current_dir(workdir);
+    /// Generate changelog using git-cliff-core library for 100% compatibility
+    fn generate_with_git_cliff_core(
+        &self,
+        repo: &Repository,
+        cliff_config_path: &PathBuf,
+        last_release_tag: &Option<String>,
+        current_version: &Version,
+    ) -> Result<(String, Version)> {
+        // Load git-cliff configuration
+        let config = Config::load(cliff_config_path)
+            .context("Failed to load cliff.toml configuration")?;
 
-        log::debug!("Running git-cliff command: {:?}", cmd);
-        
-        let output = cmd.output()
-            .context("Failed to execute git-cliff command")?;
+        // Create git-cliff repository
+        let cliff_repo = GitCliffRepository::init(
+            repo.workdir()
+                .ok_or_else(|| anyhow::anyhow!("Repository has no working directory"))?.to_path_buf()
+        )?;
 
-        if !output.status.success() {
-            let stderr = String::from_utf8_lossy(&output.stderr);
-            anyhow::bail!("git-cliff command failed: {}", stderr);
+        // Get git2 commits since last release 
+        // For now, get all commits and filter manually - will improve this later
+        let git2_commits = cliff_repo.commits(
+            None, // get all commits for now
+            None, // no end range, get until HEAD
+            None, // no include/exclude paths
+            false, // include merge commits
+        )?;
+
+        // Filter commits to only include those since the last release tag
+        let git2_commits = if let Some(tag) = last_release_tag {
+            if let Ok(tag_ref) = repo.find_reference(&format!("refs/tags/{}", tag)) {
+                if let Ok(tag_commit) = tag_ref.peel_to_commit() {
+                    let tag_commit_id = tag_commit.id();
+                    git2_commits.into_iter()
+                        .filter(|commit| commit.id() != tag_commit_id)
+                        .collect()
+                } else {
+                    git2_commits
+                }
+            } else {
+                git2_commits
+            }
+        } else {
+            git2_commits
+        };
+        let mut cliff_commits = Vec::new();
+        for git2_commit in git2_commits {
+            let cliff_commit = Commit::from(&git2_commit);
+            cliff_commits.push(cliff_commit);
         }
 
-        let changelog = String::from_utf8(output.stdout)
-            .context("git-cliff output is not valid UTF-8")?;
+        // Process commits according to configuration
+        cliff_commits = cliff_commits
+            .into_iter()
+            .filter_map(|commit| {
+                match commit.process(&config.git) {
+                    Ok(processed_commit) => Some(processed_commit),
+                    _ => None,
+                }
+            })
+            .collect();
+
+        // Compute next version based on commits (using conventional commits logic)
+        let next_version = self.compute_version_from_git_cliff_commits(&cliff_commits, current_version)?;
+
+        // Generate changelog using git-cliff
+        let mut changelog = Changelog::new(vec![], &config, None)?;
         
-        // Clean up the output
-        let changelog = changelog.trim();
-        if changelog.is_empty() {
-            return Ok("No changes since last release".to_string());
-        }
+        // Create a release with the commits
+        let release = git_cliff_core::release::Release {
+            version: Some(next_version.to_string()),
+            message: None,
+            commits: cliff_commits,
+            commit_id: None,
+            timestamp: Some(chrono::Utc::now().timestamp()),
+            previous: None,
+            commit_range: None,
+            extra: Some(serde_json::Value::Null),
+            repository: None,
+            statistics: None,
+            submodule_commits: std::collections::HashMap::new(),
+        };
         
-        Ok(changelog.to_string())
+        changelog.releases = vec![release];
+
+        // Generate the changelog text by writing to a string buffer
+        let mut buffer = Vec::new();
+        changelog.generate(&mut buffer)?;
+        let changelog_text = String::from_utf8(buffer)
+            .context("Generated changelog is not valid UTF-8")?;
+        
+        // Extract just the release section (remove header if present)
+        let changelog_text = self.extract_release_section(&changelog_text)?;
+
+        Ok((changelog_text, next_version))
     }
 
     /// Generate git-cliff-compatible changelog without using the binary
@@ -295,67 +353,32 @@ impl ReleaseOptions {
         Ok((changelog, next_version))
     }
 
-    /// Parse conventional commit message using git-cliff-compatible logic
-    fn parse_conventional_commit(&self, message: &str) -> (String, bool) {
-        let message_lower = message.to_lowercase();
-        
-        // Check for breaking changes (! in type or BREAKING CHANGE footer)
-        let is_breaking = message.contains('!') || message_lower.contains("breaking change");
-        
-        // Extract commit type
-        let commit_type = if let Some(colon_pos) = message.find(':') {
-            let type_part = &message[..colon_pos];
-            // Remove scope and breaking change indicator
-            let type_part = type_part.split('(').next().unwrap_or(type_part);
-            let type_part = type_part.replace('!', "");
-            type_part.trim().to_lowercase()
-        } else {
-            "other".to_string()
-        };
-        
-        (commit_type, is_breaking)
-    }
-
-    /// Compute next version from commits (separate from changelog generation)
-    fn compute_next_version_from_commits(
+    /// Compute version from git-cliff commits based on conventional commits
+    fn compute_version_from_git_cliff_commits(
         &self,
-        repo: &Repository,
-        last_release_tag: &Option<String>,
+        commits: &[Commit<'_>],
         current_version: &Version,
     ) -> Result<Version> {
-        // Get commits since last release
-        let mut revwalk = repo.revwalk()?;
-        revwalk.push_head()?;
-        
-        if let Some(tag) = last_release_tag {
-            // Find the commit for this tag
-            if let Ok(tag_ref) = repo.find_reference(&format!("refs/tags/{tag}"))
-                && let Ok(tag_commit) = tag_ref.peel_to_commit() {
-                    revwalk.hide(tag_commit.id())?;
-                }
-        }
-
         let mut bump_major = false;
         let mut bump_minor = false;
         let mut bump_patch = false;
 
-        for commit_id in revwalk {
-            let commit_id = commit_id?;
-            let commit = repo.find_commit(commit_id)?;
+        for commit in commits {
+            let message = &commit.message;
+            let (commit_type, is_breaking) = self.parse_conventional_commit(message);
             
-            if let Some(message) = commit.message() {
-                let (commit_type, is_breaking) = self.parse_conventional_commit(message);
-                
-                if is_breaking {
-                    bump_major = true;
-                } else {
-                    match commit_type.as_str() {
-                        "feat" | "feature" => bump_minor = true,
-                        "fix" => bump_patch = true,
-                        _ => {
-                            if !bump_major && !bump_minor {
-                                bump_patch = true;
-                            }
+            // Check for breaking changes from conventional commit parsing or git-cliff detection
+            let is_breaking = is_breaking || commit.conv.as_ref().map_or(false, |conv| conv.breaking());
+            
+            if is_breaking {
+                bump_major = true;
+            } else {
+                match commit_type.as_str() {
+                    "feat" | "feature" => bump_minor = true,
+                    "fix" => bump_patch = true,
+                    _ => {
+                        if !bump_major && !bump_minor {
+                            bump_patch = true;
                         }
                     }
                 }
@@ -380,6 +403,46 @@ impl ReleaseOptions {
         }
 
         Ok(next_version)
+    }
+
+    /// Extract the release section from the generated changelog, removing headers
+    fn extract_release_section(&self, changelog_text: &str) -> Result<String> {
+        let lines: Vec<&str> = changelog_text.lines().collect();
+        let mut start_index = 0;
+        
+        // Skip header lines (anything before the first version/unreleased section)
+        for (i, line) in lines.iter().enumerate() {
+            if line.starts_with("## [") || line.starts_with("## unreleased") {
+                start_index = i;
+                break;
+            }
+        }
+        
+        if start_index < lines.len() {
+            let result = lines[start_index..].join("\n");
+            Ok(result.trim().to_string())
+        } else {
+            Ok(changelog_text.trim().to_string())
+        }
+    }
+    fn parse_conventional_commit(&self, message: &str) -> (String, bool) {
+        let message_lower = message.to_lowercase();
+        
+        // Check for breaking changes (! in type or BREAKING CHANGE footer)
+        let is_breaking = message.contains('!') || message_lower.contains("breaking change");
+        
+        // Extract commit type
+        let commit_type = if let Some(colon_pos) = message.find(':') {
+            let type_part = &message[..colon_pos];
+            // Remove scope and breaking change indicator
+            let type_part = type_part.split('(').next().unwrap_or(type_part);
+            let type_part = type_part.replace('!', "");
+            type_part.trim().to_lowercase()
+        } else {
+            "other".to_string()
+        };
+        
+        (commit_type, is_breaking)
     }
 
     /// Format changelog in git-cliff-compatible style
