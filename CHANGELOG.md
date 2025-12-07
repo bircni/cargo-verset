@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
+## [0.3.2](https://github.com/bircni/cargo-verset/compare/0.3.1..0.3.2) - 2025-12-07
+
+### Bug Fixes
+
+- update dependencies and improve documentation with examples - ([ad400bf](https://github.com/bircni/cargo-verset/commit/ad400bf581ef174ec87d73efef6962e0a203da1a)) - Nicolas
+
 ## [0.3.1](https://github.com/bircni/cargo-verset/compare/0.3.0..0.3.1) - 2025-10-12
 
 ### Bug Fixes
