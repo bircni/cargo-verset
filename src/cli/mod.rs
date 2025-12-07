@@ -2,12 +2,8 @@ use clap::Parser;
 
 use crate::cli::{depoptions::DependencyOptions, pkgoptions::PackageOptions};
 
-mod depoptions;
-mod pkgoptions;
-#[cfg(test)]
-mod test_depoptions;
-#[cfg(test)]
-mod test_pkgoptions;
+pub mod depoptions;
+pub mod pkgoptions;
 
 #[derive(Parser)]
 #[command(author, version, about)]

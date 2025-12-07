@@ -1,5 +1,5 @@
 ---
-source: src/test.rs
+source: src/test/mod.rs
 expression: help_text
 ---
 A cargo plugin to change the version of a package in the Cargo.toml file

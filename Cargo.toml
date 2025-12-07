@@ -9,7 +9,7 @@ license = "MIT"
 readme = "README.md"
 categories = ["development-tools::cargo-plugins"]
 keywords = ["cargo", "verset", "version", "set-version", "cli"]
-exclude = ["tests/*", ".github/*", ".vscode/*", "scripts/*"]
+exclude = ["tests/*", ".github/*", ".vscode/*", "scripts/*", "src/test/*"]
 
 [[bin]]
 name = "cargo-verset"
@@ -25,7 +25,7 @@ toml_edit = "0.23"
 
 [dev-dependencies]
 tempfile = "3.23"
-insta = "1.43"
+insta = "1.44"
 
 [lints.rust]
 unsafe_code = "deny"

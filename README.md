@@ -21,8 +21,6 @@ cargo binstall cargo-verset
 ## Usage
 
 ```sh
-A cargo plugin to change the version of a package in the Cargo.toml file
-
 Usage: cargo-verset <COMMAND>
 
 Commands:
@@ -33,4 +31,46 @@ Commands:
 Options:
   -h, --help     Print help
   -V, --version  Print version
+```
+
+## Examples
+
+### Change package version
+
+```sh
+cargo verset package --ver 1.2.3
+```
+
+Sets the version of the package in the current `Cargo.toml` to `1.2.3`.
+
+With a path to another Cargo.toml:
+
+```sh
+cargo verset package --ver 2.0.0 --path ./some/crate
+```
+
+Dry run (shows the change without saving):
+
+```sh
+cargo verset package --ver 1.2.3 --dry-run
+```
+
+### Change dependency version
+
+```sh
+cargo verset dependency --name serde --ver 1.0.200
+```
+
+Sets the version of the dependency `serde` to `1.0.200` in the current `Cargo.toml`.
+
+With registry and path:
+
+```sh
+cargo verset dependency --name serde --ver 1.0.200 --registry crates-io --path ./some/crate
+```
+
+Dry run:
+
+```sh
+cargo verset dependency --name serde --ver 1.0.200 --dry-run
 ```

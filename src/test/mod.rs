@@ -4,6 +4,9 @@ use std::str;
 use clap::ColorChoice;
 use insta::_macro_support;
 
+mod test_depoptions;
+mod test_pkgoptions;
+
 /// From <https://github.com/EmbarkStudios/cargo-deny/blob/f6e40d8eff6a507977b20588c842c53bc0bfd427/src/cargo-deny/main.rs#L369>
 /// Snapshot tests for the CLI commands
 #[expect(clippy::panic, reason = "Snapshot failed")]
@@ -50,7 +53,7 @@ fn test_cli_snapshot() {
     use clap::CommandFactory as _;
 
     insta::with_settings!({
-        snapshot_path => "../tests/snapshots",
+        snapshot_path => "snapshots",
     }, {
         snapshot_test_cli_command(
             super::Cli::command().name("cargo_verset"),
