@@ -7,7 +7,7 @@ jobs:
   create-windows-binaries:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install stable
         uses: actions-rs/toolchain@v1
@@ -39,7 +39,7 @@ jobs:
           echo "::set-output name=name::${ARCHIVE_NAME}.zip"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.package.outputs.name }}
           path: ${{ steps.package.outputs.file }}
@@ -57,7 +57,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -91,7 +91,7 @@ jobs:
           echo ::set-output "name=file::${TAR_FILE}.tar.gz "
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.package.outputs.name }}
           path: ${{ steps.package.outputs.file }}
@@ -122,12 +122,12 @@ jobs:
           echo "::set-output name=tag::$VERSION"
 
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: ./binaries
 
       - name: Create a release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: v${{ steps.tagName.outputs.tag }}
           files: |

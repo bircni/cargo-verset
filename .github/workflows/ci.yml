@@ -15,7 +15,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           lfs: true
       - uses: dtolnay/rust-toolchain@master
@@ -30,7 +30,7 @@ jobs:
     name: Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           lfs: true
       - uses: dtolnay/rust-toolchain@master
@@ -55,8 +55,8 @@ jobs:
     name: cargo-deny
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: EmbarkStudios/cargo-deny-action@v1
+      - uses: actions/checkout@v6
+      - uses: EmbarkStudios/cargo-deny-action@v2
         with:
           rust-version: "1.88.0"
           log-level: error
@@ -69,7 +69,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: Swatinem/rust-cache@v2
       - run: cargo fetch
       - name: cargo publish
@@ -79,17 +79,17 @@ jobs:
     name: Typos
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: crate-ci/typos@master
 
   cargo-shear:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Cargo Shear
-        uses: taiki-e/install-action@v2.48.7
+        uses: taiki-e/install-action@v2.75.7
         with:
           tool: cargo-shear@1.4.0
 
