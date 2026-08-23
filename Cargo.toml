@@ -25,7 +25,7 @@ toml_edit = "0.25"
 
 [dev-dependencies]
 tempfile = "3.27"
-insta = "1.47"
+insta = "1.48"
 
 [lints.rust]
 unsafe_code = "deny"
