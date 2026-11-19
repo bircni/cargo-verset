@@ -2,28 +2,49 @@
 source: src/test/mod.rs
 expression: help_text
 ---
-Set the version of a dependency in a Cargo.toml file
+Set the version requirement of a dependency in a crate or workspace
 
-Usage: dependency [OPTIONS] --ver <VER> --name <PACKAGE_NAME>
+Usage: dependency [OPTIONS] [NAME] [REQ]
+
+Arguments:
+  [NAME]
+          Name of the dependency
+
+  [REQ]
+          Version requirement to set, e.g. `1.2.3`, `~1.2` or `>=1, <2`
 
 Options:
-  -v, --ver <VER>
-          Version to set for the package
+  -r, --registry <REGISTRY>
+          Also set a custom registry for the dependency
 
-  -n, --name <PACKAGE_NAME>
-          Name of the package to set the version for
+  -v, --verbose
+          Print debug output
 
-  -p, --path <PATH>
-          Path to the directory containing the Cargo.toml file
+  -k, --kind <KIND>
+          Only change these kinds of dependency tables instead of all
+
+          Possible values:
+          - normal: `[dependencies]`
+          - dev:    `[dev-dependencies]`
+          - build:  `[build-dependencies]`
+
+  -q, --quiet
+          Only print warnings and errors
+
+      --manifest-path <PATH>
+          Path to the Cargo.toml (or its directory) of the crate or workspace
+
+  -p, --package <NAME>
+          Only change these workspace members instead of all
+
+      --exclude <NAME>
+          Do not change these workspace members
 
   -d, --dry-run
-          Run the program without making any changes
-
-  -r, --registry <REGISTRY>
-          Set a custom registry for the dependency
+          Show what would be changed without writing any file
 
   -h, --help
-          Print help
+          Print help (see a summary with '-h')
 
   -V, --version
           Print version

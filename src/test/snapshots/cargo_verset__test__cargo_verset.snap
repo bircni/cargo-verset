@@ -2,16 +2,22 @@
 source: src/test/mod.rs
 expression: help_text
 ---
-A cargo plugin to change the version of a package in the Cargo.toml file
+A cargo plugin to set package and dependency versions across a whole workspace
 
-Usage: cargo_verset <COMMAND>
+Usage: cargo_verset [OPTIONS] <COMMAND>
 
 Commands:
-  package     Set the version of the package in a Cargo.toml file
-  dependency  Set the version of a dependency in a Cargo.toml file
+  package     Set the version of the packages in a crate or workspace
+  dependency  Set the version requirement of a dependency in a crate or workspace
   help        Print this message or the help of the given subcommand(s)
 
 Options:
+  -v, --verbose
+          Print debug output
+
+  -q, --quiet
+          Only print warnings and errors
+
   -h, --help
           Print help
 

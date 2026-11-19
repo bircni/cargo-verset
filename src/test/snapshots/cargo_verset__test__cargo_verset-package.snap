@@ -2,19 +2,37 @@
 source: src/test/mod.rs
 expression: help_text
 ---
-Set the version of the package in a Cargo.toml file
+Set the version of the packages in a crate or workspace
 
-Usage: package [OPTIONS] --ver <VER>
+Usage: package [OPTIONS] [VERSION]
+
+Arguments:
+  [VERSION]
+          Version to set
 
 Options:
-  -v, --ver <VER>
-          Version to set in the workspace
+      --bump <LEVEL>
+          Increment the current version instead of setting an explicit one
+          
+          [possible values: major, minor, patch]
 
-  -p, --path <PATH>
-          Path to the directory containing the Cargo.toml file
+      --manifest-path <PATH>
+          Path to the Cargo.toml (or its directory) of the crate or workspace
+
+  -v, --verbose
+          Print debug output
+
+  -p, --package <NAME>
+          Only change these workspace members instead of all
+
+  -q, --quiet
+          Only print warnings and errors
+
+      --exclude <NAME>
+          Do not change these workspace members
 
   -d, --dry-run
-          Run the program without making any changes
+          Show what would be changed without writing any file
 
   -h, --help
           Print help
