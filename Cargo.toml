@@ -1,6 +1,6 @@
 [package]
 name = "cargo-verset"
-description = "A cargo plugin to change the version of a package in the Cargo.toml file"
+description = "A cargo plugin to set package and dependency versions across a whole workspace"
 repository = "https://github.com/bircni/cargo-verset"
 version = "0.3.2"
 authors = ["bircni"]
@@ -17,9 +17,10 @@ path = "src/main.rs"
 
 [dependencies]
 anyhow = "1"
+cargo_metadata = "0.23.1"
 clap = { version = "4.6", features = ["derive"] }
 log = "0.4"
-semver = { version = "1", features = ["serde"] }
+semver = "1"
 simplelog = "0.12"
 toml_edit = "0.25"
 

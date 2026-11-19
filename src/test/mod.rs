@@ -1,11 +1,71 @@
+use std::fmt::Write as _;
+use std::fs;
 use std::path::Path;
 use std::str;
 
-use clap::ColorChoice;
+use clap::{ColorChoice, Parser as _};
 use insta::_macro_support;
+use tempfile::TempDir;
 
-mod test_depoptions;
-mod test_pkgoptions;
+use crate::cli::Cli;
+use crate::manifest::Manifest;
+
+mod test_dependency;
+mod test_package;
+
+/// Creates a crate or workspace on disk, every package gets an empty lib target.
+fn project(files: &[(&str, &str)]) -> TempDir {
+    let dir = tempfile::tempdir().unwrap();
+    for (path, content) in files {
+        let path = dir.path().join(path);
+        let parent = path.parent().unwrap();
+        fs::create_dir_all(parent).unwrap();
+        fs::write(&path, content).unwrap();
+        if content.contains("[package]") {
+            fs::create_dir_all(parent.join("src")).unwrap();
+            fs::write(parent.join("src/lib.rs"), "").unwrap();
+        }
+    }
+    dir
+}
+
+/// Runs the CLI with the given arguments against the project in `dir`.
+fn run(dir: &TempDir, args: &[&str]) -> anyhow::Result<()> {
+    let args = std::iter::once("cargo-verset")
+        .chain(args.iter().copied())
+        .chain(["--manifest-path", dir.path().to_str().unwrap()]);
+    Cli::try_parse_from(args)?.run()
+}
+
+/// Renders the given files of the project in `dir` for a snapshot.
+fn dump(dir: &TempDir, files: &[&str]) -> String {
+    let mut out = String::new();
+    for file in files {
+        let content = fs::read_to_string(dir.path().join(file)).unwrap();
+        writeln!(out, "### {file}\n{}", content.trim()).unwrap();
+    }
+    out
+}
+
+/// Parses a single in-memory manifest.
+fn manifest(content: &str) -> Vec<Manifest> {
+    vec![Manifest::parse(Path::new("Cargo.toml"), content).unwrap()]
+}
+
+#[test]
+fn test_strip_subcommand() {
+    let args = |args: &[&str]| args.iter().map(Into::into).collect::<Vec<_>>();
+    assert_eq!(
+        crate::strip_subcommand(args(&["cargo-verset", "verset", "package", "-p", "verset"])),
+        args(&["cargo-verset", "package", "-p", "verset"]),
+        "only the subcommand inserted by cargo is removed"
+    );
+    assert_eq!(
+        crate::strip_subcommand(args(&["cargo-verset", "package", "-p", "verset"])),
+        args(&["cargo-verset", "package", "-p", "verset"]),
+        "direct invocations are left untouched"
+    );
+}
 
 /// From <https://github.com/EmbarkStudios/cargo-deny/blob/f6e40d8eff6a507977b20588c842c53bc0bfd427/src/cargo-deny/main.rs#L369>
 /// Snapshot tests for the CLI commands
