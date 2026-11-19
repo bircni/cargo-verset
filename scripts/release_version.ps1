@@ -30,7 +30,7 @@ if ($version -eq $current_version) {
 Write-Host "Calculated version: $version"
 Write-Host "Updating version in Cargo.toml..."
 # Update the version in Cargo.toml
-cargo verset package -v $version
+cargo verset package --ver $version
 Write-Host "Version updated successfully in Cargo.toml."
 # Generate the changelog
 Write-Host "Generating changelog..."

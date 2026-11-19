@@ -30,7 +30,7 @@ fi
 
 echo "Calculated version: $version"
 echo "Updating version in Cargo.toml..."
-cargo verset package -v "$version"
+cargo verset package --ver "$version"
 echo "Version updated successfully in Cargo.toml."
 
 # Generate the changelog
