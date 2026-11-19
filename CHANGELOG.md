@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
+## [0.4.0](https://github.com/bircni/cargo-verset/compare/0.3.2..0.4.0) - 2026-11-19
+
+### Documentation
+
+- describe workspace-wide usage and migration from 0.3 - ([e5c6fc1](https://github.com/bircni/cargo-verset/commit/e5c6fc19d6114303d24c499558a555797b33210e)) - bircni
+
+### Features
+
+-  [**breaking**]set versions across the whole workspace - ([9b71754](https://github.com/bircni/cargo-verset/commit/9b71754c97ed70cb96ced6c5d06726805ee9d377)) - bircni
+
+### Miscellaneous Chores
+
+- **(deps)** update dependencies to latest (#9) - ([8bfa8f5](https://github.com/bircni/cargo-verset/commit/8bfa8f5ca1a778220bc25c41af8f8d74bbbb7a75)) - bircni
+- **(deps)** update dependencies to latest - ([a39a9d7](https://github.com/bircni/cargo-verset/commit/a39a9d73a07692f632d1fee744ef4d6a7229bdc7)) - bircni
+- Update dependencies - ([ec64e5f](https://github.com/bircni/cargo-verset/commit/ec64e5fae978104a4ae82cbe42edc9bf91d77246)) - Nicolas
+
+### Build
+
+- use --ver in the release scripts - ([07f4526](https://github.com/bircni/cargo-verset/commit/07f4526b87fd9bf08318eb6aa6250c51a4ced9cc)) - bircni
+
 ## [0.3.2](https://github.com/bircni/cargo-verset/compare/0.3.1..0.3.2) - 2025-12-07
 
 ### Bug Fixes
